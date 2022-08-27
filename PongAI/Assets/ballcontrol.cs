@@ -4,10 +4,17 @@ using UnityEngine;
 
 public class ballcontrol : MonoBehaviour
 {
+    private float XVel;
+    private float YVel;
+    private float XPos;
+    private float YPos;
+    private Rigidbody2D rb;
     // Start is called before the first frame update
     void Start()
     {
-        
+        rb=this.GetComponent<Rigidbody2D>();
+        rb.velocity = new Vector2(Random.Range(-5, 5), Random.Range(-5, 5));
+        rb.position = new Vector2(0, 3);
     }
 
     // Update is called once per frame
@@ -17,6 +24,12 @@ public class ballcontrol : MonoBehaviour
     }
     private void FixedUpdate()
     {
+        XVel = rb.velocity.x;
+        YVel = rb.velocity.y;
+        XPos = rb.position.x;
+        YPos = rb.position.y;
+
+        /*
         if (Input.GetKey("up"))
         {
             this.GetComponent<Rigidbody2D>().AddForce(Vector3.up*2);
@@ -32,6 +45,23 @@ public class ballcontrol : MonoBehaviour
         else if (Input.GetKey("right"))
         {
             this.GetComponent<Rigidbody2D>().AddForce(Vector3.right * 2);
-        }
+        }*/
+    }
+    public float ReturnXVel()
+    {
+        return XVel;
+    }
+    public float ReturnYVel()
+    {
+        return YVel;
+
+    }
+    public float ReturnXPos()
+    {
+        return XPos;
+    }
+    public float ReturnYPos()
+    {
+        return YPos;
     }
 }

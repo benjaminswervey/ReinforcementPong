@@ -140,7 +140,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5813572637709677050, guid: 21b05f468725ffd4994b820d30fd6fa1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 2.2
       objectReference: {fileID: 0}
     - target: {fileID: 5813572637709677050, guid: 21b05f468725ffd4994b820d30fd6fa1, type: 3}
       propertyPath: m_LocalPosition.y
@@ -349,7 +349,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb83c898f392f9949b5522ca9d74369a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PaddleSlave: {fileID: 0}
+  PaddleSlave: {fileID: 471698464811023576, guid: 21b05f468725ffd4994b820d30fd6fa1, type: 3}
+  ball: {fileID: 1087202676}
 --- !u!4 &968461119
 Transform:
   m_ObjectHideFlags: 0
@@ -493,7 +494,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1087202676}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.01, y: 2.68, z: 0}
+  m_LocalPosition: {x: 0, y: 1.1, z: 0}
   m_LocalScale: {x: 0.33, y: 0.33, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
