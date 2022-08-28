@@ -4,17 +4,25 @@ using UnityEngine;
 
 public class PaddleControl : MonoBehaviour
 {
+    private ArrayList Weights = new ArrayList();
+    private ArrayList OldXVect = new ArrayList();
     private ArrayList XVect=new ArrayList();
     private bool terminal = false;
     private Rigidbody2D rb;
     private float Xpos;
     private GameObject Ball;
-   
+    private float R = 0;
     private int A = 0;
+    private int APrime = 0;
+
     // Start is called before the first frame update
     void Start()
     {
         rb = this.GetComponent<Rigidbody2D>();
+        A = 0;
+        APrime = 0;
+        OldXVect = UpdateStateVect(A);
+
     }
 
     // Update is called once per frame
@@ -23,8 +31,29 @@ public class PaddleControl : MonoBehaviour
         
     }
     private void FixedUpdate()
-    {
-      
+    {     
+       while (Ball.GetComponent<Rigidbody2D>().position.y > -5)
+        {
+            rb.velocity = new Vector3((1 - 2 * A)*5,0,0);//take action
+            if(Ball.GetComponent<Rigidbody2D>().position.y > -5)
+            {
+                R = 0;
+            }//see reward
+            else
+            {
+                R = -1;
+            }
+            XVect = UpdateStateVect(A);//new (current) State Vector
+            if (rb.position.y > -5)
+            {
+                //update weights then kill
+                //next episode
+            }
+            APrime = ChooseAction(XVect);
+            //update weights
+            OldXVect = XVect;
+            A = APrime;
+        }
     }
 
     public void SetXVect(ArrayList NewXVect)
@@ -34,6 +63,14 @@ public class PaddleControl : MonoBehaviour
     public ArrayList GetXVect()
     {
         return XVect;
+    }
+    public void SetWeight(ArrayList NewWeight)
+    {
+        Weights = NewWeight;
+    }
+    public ArrayList GetWeight()
+    {
+        return Weights;
     }
     public void SetTerminal(bool term)
     {
@@ -47,7 +84,7 @@ public class PaddleControl : MonoBehaviour
     {
         Ball = ball;
     }
-    private ArrayList UpdateStateVect()
+    private ArrayList UpdateStateVect(int Action)
     {
         XVect.Clear();
         Xpos = rb.position.x;
@@ -61,21 +98,65 @@ public class PaddleControl : MonoBehaviour
         //-5<ball y Pos<5
         //-5<ball x Vel<5
         //-5<ball x Vel<5
-        XVect[(int)((Mathf.RoundToInt(Xpos + 3.66667f) / .98f) - .5f) + 6 * A] = 1;
-        XVect[(int)((Mathf.RoundToInt(Xpos + 2.9333f) / .98f) - .5f) + 6 * A + 12] = 1;
-        XVect[(int)((Mathf.RoundToInt(Xpos + 2.2f) / .98f) - .5f) + 6 * A + 24] = 1;
-        XVect[(int)((Mathf.RoundToInt(BallPosX + 5f) / 1.334f) - .5f) + 6 * A + 36] = 1;
-        XVect[(int)((Mathf.RoundToInt(BallPosX + 4f) / 1.334f) - .5f) + 6 * A + 48] = 1;
-        XVect[(int)((Mathf.RoundToInt(BallPosX + 3.0f) / 1.334f) - .5f) + 6 * A + 60] = 1;
-        XVect[(int)((Mathf.RoundToInt(BallPosY + 8.3333f) / 2.223f) - .5f) + 6 * A + 72] = 1;
-        XVect[(int)((Mathf.RoundToInt(BallPosY + 6.6665f) / 2.223f) - .5f) + 6 * A + 84] = 1;
-        XVect[(int)((Mathf.RoundToInt(BallPosY + 5f) / 2.223f) - .5f) + 6 * A + 96] = 1;
-        XVect[(int)((Mathf.RoundToInt(BallVelX + 8.3333f) / 2.223f) - .5f) + 6 * A + 108] = 1;
-        XVect[(int)((Mathf.RoundToInt(BallVelX + 6.6665f) / 2.223f) - .5f) + 6 * A + 120] = 1;
-        XVect[(int)((Mathf.RoundToInt(BallVelX + 5f) / 2.223f) - .5f) + 6 * A + 132] = 1;
-        XVect[(int)((Mathf.RoundToInt(BallVelY + 8.3333f) / 2.223f) - .5f) + 6 * A + 144] = 1;
-        XVect[(int)((Mathf.RoundToInt(BallVelX + 6.6665f) / 2.223f) - .5f) + 6 * A + 156] = 1;
-        XVect[(int)((Mathf.RoundToInt(BallVelX + 5f) / 2.223f) - .5f) + 6 * A + 168] = 1;
+        XVect[(int)((Mathf.RoundToInt(Xpos + 3.66667f) / .98f) - .5f) + 6 * Action] = 1;
+        XVect[(int)((Mathf.RoundToInt(Xpos + 2.9333f) / .98f) - .5f) + 6 * Action + 12] = 1;
+        XVect[(int)((Mathf.RoundToInt(Xpos + 2.2f) / .98f) - .5f) + 6 * Action + 24] = 1;
+        XVect[(int)((Mathf.RoundToInt(BallPosX + 5f) / 1.334f) - .5f) + 6 * Action + 36] = 1;
+        XVect[(int)((Mathf.RoundToInt(BallPosX + 4f) / 1.334f) - .5f) + 6 * Action + 48] = 1;
+        XVect[(int)((Mathf.RoundToInt(BallPosX + 3.0f) / 1.334f) - .5f) + 6 * Action + 60] = 1;
+        XVect[(int)((Mathf.RoundToInt(BallPosY + 8.3333f) / 2.223f) - .5f) + 6 * Action + 72] = 1;
+        XVect[(int)((Mathf.RoundToInt(BallPosY + 6.6665f) / 2.223f) - .5f) + 6 * Action + 84] = 1;
+        XVect[(int)((Mathf.RoundToInt(BallPosY + 5f) / 2.223f) - .5f) + 6 * Action + 96] = 1;
+        XVect[(int)((Mathf.RoundToInt(BallVelX + 8.3333f) / 2.223f) - .5f) + 6 * Action + 108] = 1;
+        XVect[(int)((Mathf.RoundToInt(BallVelX + 6.6665f) / 2.223f) - .5f) + 6 * Action + 120] = 1;
+        XVect[(int)((Mathf.RoundToInt(BallVelX + 5f) / 2.223f) - .5f) + 6 * Action + 132] = 1;
+        XVect[(int)((Mathf.RoundToInt(BallVelY + 8.3333f) / 2.223f) - .5f) + 6 * Action + 144] = 1;
+        XVect[(int)((Mathf.RoundToInt(BallVelX + 6.6665f) / 2.223f) - .5f) + 6 * Action + 156] = 1;
+        XVect[(int)((Mathf.RoundToInt(BallVelX + 5f) / 2.223f) - .5f) + 6 * Action + 168] = 1;
         return XVect;
+    }
+    private int ChooseAction(ArrayList StateVector)
+    {
+        
+        //0=right
+        //1=left
+        if(Random.Range(0f,1f)>0.5f) 
+        {
+            float QRight = 0;
+            float QLeft = 0;
+            StateVector=UpdateStateVect(0);
+            QRight = MultiplyVectors(StateVector, Weights);
+            StateVector = UpdateStateVect(1);
+            QLeft = MultiplyVectors(StateVector, Weights);
+            if (QRight > QLeft)
+            {
+                return 0;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+        else
+        {
+            return Random.Range(0,2);
+        }
+    }
+    private float MultiplyVectors(ArrayList A, ArrayList B)
+    {
+       float total = 0;
+        if (A.Count!=B.Count)
+        {
+            return -999;
+        }
+        else
+        {
+            for(int i = 0; i < A.Count; i++)
+            {
+                total = total + (float)A[i] * (float)B[i];
+            }
+            return total;
+        }
+
     }
 }
