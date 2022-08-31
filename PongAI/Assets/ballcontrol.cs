@@ -13,7 +13,7 @@ public class ballcontrol : MonoBehaviour
     void Start()
     {
         rb=this.GetComponent<Rigidbody2D>();
-        rb.velocity = new Vector2(Random.Range(-5, 5), Random.Range(-5, 5));
+        rb.velocity = new Vector2(Random.Range(-5, 5), -5);
         rb.position = new Vector2(0, 3);
     }
 
@@ -24,11 +24,11 @@ public class ballcontrol : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        XVel = rb.velocity.x;
-        YVel = rb.velocity.y;
+        rb.velocity = rb.velocity.normalized * 5;
         XPos = rb.position.x;
         YPos = rb.position.y;
-
+        XVel = rb.velocity.x;
+        YVel = rb.velocity.y;
         /*
         if (Input.GetKey("up"))
         {
@@ -63,5 +63,10 @@ public class ballcontrol : MonoBehaviour
     public float ReturnYPos()
     {
         return YPos;
+    }
+    public void NewEpisode()
+    {
+        rb.position = new Vector2(0, 3);
+        rb.velocity = new Vector2(Random.Range(-5, 5), -5);
     }
 }

@@ -43,6 +43,7 @@ public class PaddleLord : MonoBehaviour
     }
     public void Birth()
     {
+        Debug.Log("birth");
         CurrentPaddle = Instantiate(PaddleSlave,this.transform);
         //CurrentPaddle.GetComponent<PaddleControl>().SetXVect(XVectStore);
         CurrentPaddle.GetComponent<PaddleControl>().SetBall(ball);
