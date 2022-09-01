@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class PaddleControl : MonoBehaviour
 {
-    public float[] Weights = new float[180];
-    public int[] OldXVect = new int[180];
-    public int[] XVect= new int[180];
+    public float[] Weights = new float[270];
+    public int[] OldXVect = new int[270];
+    public int[] XVect= new int[270];
     private bool terminal = false;
     private Rigidbody2D rb;
     private float Xpos;
@@ -14,8 +14,8 @@ public class PaddleControl : MonoBehaviour
     private float R = 0;
     private int A = 0;
     private int APrime = 0;
-    private float ALPHA = 0.05f;
-    private float GAMMA = 0.9f;
+    private float ALPHA = 0.000005f;
+    private float GAMMA = 0.999999f;
 
     // Start is called before the first frame update
     void Start()
@@ -36,16 +36,16 @@ public class PaddleControl : MonoBehaviour
     {     
        //while (Ball.GetComponent<Rigidbody2D>().position.y > -5)
         //{
-            rb.velocity = new Vector3((1 - 2 * A)*15,0,0);//take action
+            rb.velocity = new Vector3((A)*15,0,0);//take action
         //Debug.Log(rb.velocity);
         //Debug.Log(Weights[0]);
             if(Ball.GetComponent<Rigidbody2D>().position.y > -5)
             {
-                R = 1;
+                R = 0;
             }//see reward
             else
             {
-                R = 0;
+                R = -1;
             }
             XVect = UpdateStateVect(A);//new (current) State Vector
             if (Ball.GetComponent<Rigidbody2D>().position.y < -5)
@@ -92,7 +92,7 @@ public class PaddleControl : MonoBehaviour
     }
     private int[] UpdateStateVect(int Action)
     {
-        int[] VectX=new int[180];
+        int[] VectX=new int[270];
         //XVect.Clear();
         //XVect.ensureCapacity(100);
         Xpos = rb.position.x;
@@ -108,21 +108,21 @@ public class PaddleControl : MonoBehaviour
         //-5<ball x Vel<5
         //Debug.Log(XVect.Length);
         
-        VectX[(int)(Mathf.RoundToInt(((Xpos + 3.66667f) / .98f) - .5f)) + 6 * Action] = 1;
-        VectX[(int)(Mathf.RoundToInt(((Xpos + 2.9333f) / .98f) - .5f)) + 6 * Action + 12] = 1;
-        VectX[(int)(Mathf.RoundToInt(((Xpos + 2.2f) / .98f) - .5f)) + 6 * Action + 24] = 1;
-        VectX[(int)(Mathf.RoundToInt(((BallPosX + 5f) / 1.334f) - .5f)) + 6 * Action + 36] = 1;
-        VectX[(int)(Mathf.RoundToInt(((BallPosX + 4f) / 1.334f) - .5f)) + 6 * Action + 48] = 1;
-        VectX[(int)(Mathf.RoundToInt(((BallPosX + 3.0f) / 1.334f) - .5f)) + 6 * Action + 60] = 1;
-        VectX[(int)(Mathf.RoundToInt(((BallPosY + 8.3333f) / 2.223f) - .5f)) + 6 * Action + 72] = 1;
-        VectX[(int)(Mathf.RoundToInt(((BallPosY + 6.6665f) / 2.223f) - .5f)) + 6 * Action + 84] = 1;
-        VectX[(int)(Mathf.RoundToInt(((BallPosY + 5f) / 2.223f) - .5f)) + 6 * Action + 96] = 1;
-        VectX[(int)(Mathf.RoundToInt(((BallVelX + 8.3333f) / 2.223f) - .5f)) + 6 * Action + 108] = 1;
-        VectX[(int)(Mathf.RoundToInt(((BallVelX + 6.6665f) / 2.223f) - .5f)) + 6 * Action + 120] = 1;
-        VectX[(int)(Mathf.RoundToInt(((BallVelX + 5f) / 2.223f) - .5f)) + 6 * Action + 132] = 1;
-        VectX[(int)(Mathf.RoundToInt(((BallVelY + 8.3333f) / 2.223f) - .5f)) + 6 * Action + 144] = 1;
-        VectX[(int)(Mathf.RoundToInt(((BallVelX + 6.6665f) / 2.223f) - .5f)) + 6 * Action + 156] = 1;
-        VectX[(int)(Mathf.RoundToInt(((BallVelX + 5f) / 2.223f) - .5f)) + 6 * Action + 168] = 1;
+        VectX[(int)(Mathf.RoundToInt(((Xpos + 3.66667f) / .98f) - .5f)) + 6 * (Action+1)] = 1;
+        VectX[(int)(Mathf.RoundToInt(((Xpos + 2.9333f) / .98f) - .5f)) + 6 * (Action+1) + 18] = 1;
+        VectX[(int)(Mathf.RoundToInt(((Xpos + 2.2f) / .98f) - .5f)) + 6 * (Action + 1) + 36] = 1;
+        VectX[(int)(Mathf.RoundToInt(((BallPosX + 5f) / 1.334f) - .5f)) + 6 * (Action + 1) + 54] = 1;
+        VectX[(int)(Mathf.RoundToInt(((BallPosX + 4f) / 1.334f) - .5f)) + 6 * (Action + 1) + 72] = 1;
+        VectX[(int)(Mathf.RoundToInt(((BallPosX + 3.0f) / 1.334f) - .5f)) + 6 * (Action + 1) + 90] = 1;
+        VectX[(int)(Mathf.RoundToInt(((BallPosY + 8.3333f) / 2.223f) - .5f)) + 6 * (Action + 1) + 108] = 1;
+        VectX[(int)(Mathf.RoundToInt(((BallPosY + 6.6665f) / 2.223f) - .5f)) + 6 * (Action + 1) + 126] = 1;
+        VectX[(int)(Mathf.RoundToInt(((BallPosY + 5f) / 2.223f) - .5f)) + 6 * (Action + 1) + 144] = 1;
+        VectX[(int)(Mathf.RoundToInt(((BallVelX + 8.3333f) / 2.223f) - .5f)) + 6 * (Action + 1) + 162] = 1;
+        VectX[(int)(Mathf.RoundToInt(((BallVelX + 6.6665f) / 2.223f) - .5f)) + 6 * (Action + 1) + 180] = 1;
+        VectX[(int)(Mathf.RoundToInt(((BallVelX + 5f) / 2.223f) - .5f)) + 6 * (Action + 1) + 198] = 1;
+        VectX[(int)(Mathf.RoundToInt(((BallVelY + 8.3333f) / 2.223f) - .5f)) + 6 * (Action + 1) + 216] = 1;
+        VectX[(int)(Mathf.RoundToInt(((BallVelX + 6.6665f) / 2.223f) - .5f)) + 6 * (Action + 1) + 234] = 1;
+        VectX[(int)(Mathf.RoundToInt(((BallVelX + 5f) / 2.223f) - .5f)) + 6 * (Action + 1) + 252] = 1;
         
         return VectX;
     }
@@ -136,17 +136,25 @@ public class PaddleControl : MonoBehaviour
             //Debug.Log("choice");
             float QRight = 0;
             float QLeft = 0;
+            float QMiddle = 0;
             int[] StateVectorRight=UpdateStateVect(0);
             QRight = MultiplyVectors(StateVectorRight, Weights);
+            
            // Debug.Log("right");
            // Debug.Log(QRight);
            int[] StateVectorLeft = UpdateStateVect(1);
             QLeft = MultiplyVectors(StateVectorLeft, Weights);
-           // Debug.Log("left");
-           // Debug.Log(QLeft);
-            if (QRight > QLeft)
+            // Debug.Log("left");
+            // Debug.Log(QLeft);
+            int[] StateVectorMiddle = UpdateStateVect(1);
+            QMiddle = MultiplyVectors(StateVectorMiddle, Weights);
+            if (QRight > QLeft&QRight>QMiddle)
             {
                 return 0;
+            }
+            else if(QLeft>QRight&QLeft>QMiddle)
+            {
+                return -1;
             }
             else
             {
@@ -155,7 +163,7 @@ public class PaddleControl : MonoBehaviour
         }
         else
         {
-            return Random.Range(0,2);
+            return Random.Range(-1,2);
         }
     }
     private int ChooseAction()
@@ -168,17 +176,27 @@ public class PaddleControl : MonoBehaviour
             //Debug.Log("choice");
             float QRight = 0;
             float QLeft = 0;
+            float QMiddle = 0;
             int[] StateVectorRight = UpdateStateVect(0);
             QRight = MultiplyVectors(StateVectorRight, Weights);
             Debug.Log("right");
             Debug.Log(QRight);
+            Debug.Log(Weights.Length);
             int[] StateVectorLeft = UpdateStateVect(1);
             QLeft = MultiplyVectors(StateVectorLeft, Weights);
+            int[] StateVectorMiddle = UpdateStateVect(1);
+            QMiddle = MultiplyVectors(StateVectorMiddle, Weights);
             Debug.Log("left");
             Debug.Log(QLeft);
-            if (QRight > QLeft)
+            Debug.Log("middle");
+            Debug.Log(QMiddle);
+            if (QRight > QLeft & QRight > QMiddle)
             {
                 return 0;
+            }
+            else if (QLeft > QRight & QLeft > QMiddle)
+            {
+                return -1;
             }
             else
             {
@@ -187,7 +205,7 @@ public class PaddleControl : MonoBehaviour
         }
         else
         {
-            return Random.Range(0, 2);
+            return Random.Range(-1, 2);
         }
     }
     private float MultiplyVectors(int[] A, float[] B)

@@ -6,7 +6,7 @@ public class PaddleLord : MonoBehaviour
 {
     public GameObject PaddleSlave;
    // public int[] XVectStore = new int[180]; //3 tilings, with 6 bins, of 5 variables (X paddle, X&Y pos ball, X&Y Vel Ball) times two actions Left or Right
-    public float[] WeightStore = new float[180]; //weights 
+    public float[] WeightStore = new float[270]; //weights 
     private GameObject CurrentPaddle;
     public GameObject ball;
     
