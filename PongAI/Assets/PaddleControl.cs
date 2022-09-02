@@ -4,26 +4,39 @@ using UnityEngine;
 
 public class PaddleControl : MonoBehaviour
 {
-    public float[] Weights = new float[270];
-    public int[] OldXVect = new int[270];
-    public int[] XVect= new int[270];
+    private float[] Weights = new float[270];
+    public int[,] OldXVect = new int[270,30];
+    public int[,] XVect= new int[270,30];
     private bool terminal = false;
     private Rigidbody2D rb;
     private float Xpos;
     private GameObject Ball;
-    private float R = 0;
-    private int A = 0;
+    private float[] R = new float[30];
+    private int[] A = new int[30];
     private int APrime = 0;
     private float ALPHA = 0.000005f;
     private float GAMMA = 0.999999f;
-
+    private int n = 30;
+    private float[] tempWeight = new float[270];
+    private int[] tempState = new int[270];
+    private long T = 9999999999999;
+    private int t =0;
+    private int tau = 0;
+    private float G = 0;
     // Start is called before the first frame update
     void Start()
     {
         rb = this.GetComponent<Rigidbody2D>();
-        A = 0;
-        APrime = 0;
-        OldXVect = UpdateStateVect(A);
+        A[0] = 0;
+       // APrime = 0;
+        tempState = UpdateStateVect(A[0]);
+        for(int i = 0; i < tempState.Length; i++)
+        {
+            XVect[i, 0] = tempState[i];
+        }
+        t = 0;
+        tau = 0;
+        T = 99999999999;
 
     }
 
@@ -33,43 +46,77 @@ public class PaddleControl : MonoBehaviour
         
     }
     private void FixedUpdate()
-    {     
-       //while (Ball.GetComponent<Rigidbody2D>().position.y > -5)
+    {
+        //while (Ball.GetComponent<Rigidbody2D>().position.y > -5)
         //{
-            rb.velocity = new Vector3((A)*15,0,0);//take action
-        //Debug.Log(rb.velocity);
-        //Debug.Log(Weights[0]);
-            if(Ball.GetComponent<Rigidbody2D>().position.y > -5)
+        if (t < T)
+        {
+            rb.velocity = new Vector3((A[t % n]) * 15, 0, 0);//take action
+            R[(t+1)%n] = 0;
+            tempState = UpdateStateVect(A[t%n]);//new (current) State Vector
+            for (int i = 0; i < tempState.Length; i++)
             {
-                R = 0;
+                XVect[i, (t%n)] = tempState[i];
+            }
+            if (Ball.GetComponent<Rigidbody2D>().position.y < -5)
+            {
+                T = t + 1;
+                Debug.Log("tau");
+                Debug.Log(tau);
+                Debug.Log("T");
+                Debug.Log(T);
             }//see reward
             else
             {
-                R = -1;
+                A[(t + 1) % n] = ChooseAction();
             }
-            XVect = UpdateStateVect(A);//new (current) State Vector
-            if (Ball.GetComponent<Rigidbody2D>().position.y < -5)
+            
+        }
+        tau = t-n + 1;
+        if (tau > 0)
+        {
+            G = 0;
+            for(int i = tau + 1; i <= Mathf.Min(tau + n, T); i++)
             {
-                Weights=UpdateWeights(ALPHA, OldXVect, Weights, R);
-            Ball.GetComponent<ballcontrol>().NewEpisode();
-                this.transform.parent.transform.GetComponent<PaddleLord>().Kill();
+                G = G + Mathf.Pow(GAMMA, i - tau - 1) * R[i%n];
             }
-            APrime = ChooseAction();
-       // Debug.Log(APrime);
-            Weights = UpdateWeights(ALPHA, OldXVect, Weights, R,GAMMA,XVect);
-            OldXVect = XVect;
-            A = APrime;
-        //}
+            if (tau + n < T)
+            {
+                for (int i = 0; i < tempState.Length; i++)
+                {
+                     tempState[i]=XVect[i, (tau+n)%n];
+                }
+                
+                G = G + Mathf.Pow(GAMMA, n) * MultiplyVectors(tempState, Weights);
+
+            }
+            for (int i = 0; i < tempState.Length; i++)
+            {
+                tempState[i] = XVect[i, (tau) % n];
+            }
+            for (int i = 0; i < Weights.Length; i++)
+            {
+                Weights[i] = Weights[i] + ALPHA * (G - MultiplyVectors(tempState, Weights)) * tempState[i];
+               
+            }
+           
+        }
+        if (tau == T - 1)
+        {
+            this.transform.parent.GetComponent<PaddleLord>().Kill();
+            Ball.GetComponent<ballcontrol>().NewEpisode();
+        }
+        t = t + 1;
     }
 
-    public void SetXVect(int[] NewXVect)
+   /* public void SetXVect(int[] NewXVect)
     {
         XVect = NewXVect;
     }
     public int[] GetXVect()
     {
         return XVect;
-    }
+    }*/
     public void SetWeight(float[] NewWeight)
     {
         Weights = NewWeight;
@@ -187,7 +234,8 @@ public class PaddleControl : MonoBehaviour
             int[] StateVectorMiddle = UpdateStateVect(1);
             QMiddle = MultiplyVectors(StateVectorMiddle, Weights);
             Debug.Log("left");
-            Debug.Log(QLeft);
+
+
             Debug.Log("middle");
             Debug.Log(QMiddle);
             if (QRight > QLeft & QRight > QMiddle)
@@ -244,4 +292,5 @@ public class PaddleControl : MonoBehaviour
         }
         return Weight;
     }
+
 }
